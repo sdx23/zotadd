@@ -21,6 +21,7 @@ if __name__ == '__main__':
         print("No such file '{}'. Aborting.".format(fname))
         sys.exit(1)
 
+    rv = 0
     # TODO: replace this hacky approach
     with TemporaryDirectory() as temp_wdir:
         # serve file
@@ -33,9 +34,16 @@ if __name__ == '__main__':
 
         # import in zotero
         sleep(0.1)
-        response = post(zapi_url + "saveSnapshot",
+        try:
+            response = post(zapi_url + "saveSnapshot",
                         json={"url": zserv_url, "pdf": True}, timeout=zapi_timeout)
+        except:
+            rv = 0
+            print("Failed to contact Zotero API. Aborting.")
+
         sleep(0.1)
 
     # cleanup
     zserv_process.terminate()
+
+    sys.exit(rv)
